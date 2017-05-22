@@ -6,13 +6,12 @@
 
 # How to use ros_osm
 
-1) collect data
-2) calculate transformation
-3) run queries
+1) Collect data
+2) Calculate transformation
+3) Run queries
 
 ```
 roscore
-cd data
 rosbag play <filename>.bag
 roslaunch ros_osm collect_data.launch
 [Ctrl+C]
