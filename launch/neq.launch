@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="ros_osm" type="transformer_server.py" name="transformer_server_node" output="screen">
+    <param name="read_w" value="true"/>
+    <param name="fname_gps" value="$(find ros_osm)/data/gps_data.txt"/>
+    <param name="fname_pose" value="$(find ros_osm)/data/pose_data.txt"/>
+    <param name="fname_w" value="$(find ros_osm)/data/w_data.txt"/>
+  </node>
+</launch>

@@ -1,0 +1,14 @@
+float64 map_x
+float64 map_y
+---
+float64 nodeid
+float64 lat
+float64 long
+float64 maxspeed
+float64 maxheight
+int32 lanes
+string roadname
+string oneway
+string surface
+string highway
+bool finished

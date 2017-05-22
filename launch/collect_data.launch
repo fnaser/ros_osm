@@ -1,0 +1,7 @@
+<launch>
+  <node pkg="ros_osm" type="collect_data.py" name="collect_data_node" output="screen" ns="iMiev">
+    <param name="fname_gps" value="$(find ros_osm)/data/gps_data.txt"/>
+    <param name="fname_gps_viz" value="$(find ros_osm)/data/gps_viz_data.txt"/>
+    <param name="fname_pose" value="$(find ros_osm)/data/pose_data.txt"/>
+  </node>
+</launch>

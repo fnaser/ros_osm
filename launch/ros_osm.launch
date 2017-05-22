@@ -1,0 +1,10 @@
+<launch>
+  <include file="$(find ros_osm)/launch/neq.launch"/>
+
+  <node pkg="ros_osm" type="information_client.py" name="information_client_node" output="screen"/>
+
+  <node pkg="ros_osm" type="information_server.py" name="information_server_node" output="screen">
+    <param name="fname_osm_map" value="$(find ros_osm)/data/map.osm"/>
+  </node>
+
+</launch>
