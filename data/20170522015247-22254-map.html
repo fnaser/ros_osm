@@ -1,0 +1,1228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>GPS data</title>
+		<base target="_top"></base>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+		<meta name="geo.position" content="1.3001778; 103.7905124" />
+		<meta name="ICBM" content="1.3001778, 103.7905124" />
+	</head>
+	<body style="margin:0px;">
+		<script type="text/javascript">
+			google_api_key = ''; // Your project's Google Maps API key goes here (https://code.google.com/apis/console)
+			language_code = '';
+			document.writeln('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3&amp;libraries=geometry&amp;language='+(self.language_code?self.language_code:'')+'&amp;key='+(self.google_api_key?self.google_api_key:'')+'"><'+'/script>');
+			
+			thunderforest_api_key = ''; // To display OpenStreetMap tiles from ThunderForest, you need a key (http://www.thunderforest.com/docs/apikeys/)
+		</script>
+		
+		<!--
+			If you want to transplant this map into another Web page, by far the best method is to
+			simply include it in a IFRAME tag (see http://www.gpsvisualizer.com/faq.html#google_html).
+			But, if you must paste the code into another page, be sure to include all of these parts:
+			   1. The "div" tags that contain the map and its widgets, below
+			   2. Three sections of JavaScript code:
+			      a. The Google code (maps.google.com or googleapis.com) code, above
+			      b. "gv_options" and the code that calls a .js file on maps.gpsvisualizer.com
+			      c. The "GV_Map" function, which contains all the geographic info for the map
+		-->
+		<div style="margin-left:0px; margin-right:0px; margin-top:0px; margin-bottom:0px;">
+			<div id="gmap_div" style="width:700px; height:700px; margin:0px; margin-right:12px; background-color:#f0f0f0; float:left; overflow:hidden;">
+				<p align="center" style="font:10px Arial;">This map was created using <a target="_blank" href="http://www.gpsvisualizer.com/">GPS Visualizer</a>'s do-it-yourself geographic utilities.<br /><br />Please wait while the map data loads...</p>
+			</div>
+				
+			<div id="gv_infobox" class="gv_infobox" style="font:11px Arial; border:solid #666666 1px; background-color:#ffffff; padding:4px; overflow:auto; display:none; max-width:400px;">
+				<!-- Although GPS Visualizer didn't create an legend/info box with your map, you can use this space for something else if you'd like; enable it by setting gv_options.infobox_options.enabled to true -->
+			</div>
+
+
+
+			<div id="gv_marker_list" class="gv_marker_list" style="background-color:#ffffff; overflow:auto; display:none;"><!-- --></div>
+
+			<div id="gv_clear_margins" style="height:0px; clear:both;"><!-- clear the "float" --></div>
+		</div>
+
+		
+		<!-- begin GPS Visualizer setup script (must come after maps.google.com code) -->
+		<script type="text/javascript">
+			/* Global variables used by the GPS Visualizer functions (20170522015247): */
+			gv_options = {};
+			
+			// basic map parameters:
+			gv_options.center = [1.30017782179465,103.790512390162];  // [latitude,longitude] - be sure to keep the square brackets
+			gv_options.zoom = 17;  // higher number means closer view; can also be 'auto' for automatic zoom/center based on map elements
+			gv_options.map_type = 'GV_HYBRID';  // popular map_type choices are 'GV_STREET', 'GV_SATELLITE', 'GV_HYBRID', 'GV_TERRAIN', 'GV_OSM', 'GV_TOPO_US', 'GV_TOPO_WORLD' (http://www.gpsvisualizer.com/misc/google_map_types.html)
+			gv_options.map_opacity = 0.50;  // number from 0 to 1
+			gv_options.full_screen = true;  // true|false: should the map fill the entire page (or frame)?
+			gv_options.width = 700;  // width of the map, in pixels
+			gv_options.height = 700;  // height of the map, in pixels
+			
+			gv_options.map_div = 'gmap_div';  // the name of the HTML "div" tag containing the map itself; usually 'gmap_div'
+			gv_options.doubleclick_zoom = true;  // true|false: zoom in when mouse is double-clicked?
+			gv_options.doubleclick_center = true;  // true|false: re-center the map on the point that was double-clicked?
+			gv_options.scroll_zoom = true; // true|false; or 'reverse' for down=in and up=out
+			gv_options.autozoom_adjustment = 0;
+			gv_options.centering_options = { 'open_info_window':true, 'partial_match':true, 'center_key':'center', 'default_zoom':null } // URL-based centering (e.g., ?center=name_of_marker&zoom=14)
+			gv_options.tilt = false; // true|false: allow Google to show 45-degree tilted aerial imagery?
+			gv_options.street_view = false; // true|false: allow Google Street View on the map
+			gv_options.animated_zoom = false; // true|false: may or may not work properly
+			gv_options.disable_google_pois = false;  // true|false: if you disable clickable POIs, you also lose the labels on parks, airports, etc.
+				
+			// widgets on the map:
+			gv_options.zoom_control = 'large'; // 'large'|'small'|'none'
+			gv_options.recenter_button = true; // true|false: is there a 'click to recenter' option in the zoom control?
+			gv_options.scale_control = true; // true|false
+			gv_options.map_opacity_control = false;  // true|false: does it appear on the map itself?
+			gv_options.map_type_control = {};  // widget to change the background map
+			  gv_options.map_type_control.visible = true;  // true|false: does it appear on the map itself?
+			  gv_options.map_type_control.filter = false;  // true|false: when map loads, are irrelevant maps ignored?
+			  gv_options.map_type_control.excluded = [];  // comma-separated list of quoted map IDs that will never show in the list ('included' also works)
+			gv_options.center_coordinates = true;  // true|false: show a "center coordinates" box and crosshair?
+			gv_options.measurement_tools = true;  // true|false: does it appear on the map itself?
+			gv_options.measurement_options = { visible:false, distance_color:'', area_color:'' };
+			gv_options.crosshair_hidden = true;  // true|false: hide the crosshair initially?
+			gv_options.mouse_coordinates = false;  // true|false: show a "mouse coordinates" box?
+			gv_options.utilities_menu = { 'maptype':true, 'opacity':true, 'measure':true, 'export':true };
+			gv_options.allow_export = false;  // true|false
+			
+			gv_options.infobox_options = {}; // options for a floating info box (id="gv_infobox"), which can contain anything
+			  gv_options.infobox_options.enabled = true;  // true|false: enable or disable the info box altogether
+			  gv_options.infobox_options.position = ['LEFT_TOP',52,6];  // [Google anchor name, relative x, relative y]
+			  gv_options.infobox_options.draggable = true;  // true|false: can it be moved around the screen?
+			  gv_options.infobox_options.collapsible = true;  // true|false: can it be collapsed by double-clicking its top bar?
+
+			// marker-related options:
+			gv_options.default_marker = { color:'red',icon:'blankcircle',scale:1,opacity:0.7 }; // icon can be a URL, but be sure to also include size:[w,h] and optionally anchor:[x,y]
+			gv_options.vector_markers = false; // are the icons on the map in embedded SVG format?
+			gv_options.marker_tooltips = true; // do the names of the markers show up when you mouse-over them?
+			gv_options.marker_shadows = true; // true|false: do the standard markers have "shadows" behind them?
+			gv_options.marker_link_target = '_blank'; // the name of the window or frame into which markers' URLs will load
+			gv_options.info_window_width = 0;  // in pixels, the width of the markers' pop-up info "bubbles" (can be overridden by 'window_width' in individual markers)
+			gv_options.thumbnail_width = 0;  // in pixels, the width of the markers' thumbnails (can be overridden by 'thumbnail_width' in individual markers)
+			gv_options.photo_size = [0,0];  // in pixels, the size of the photos in info windows (can be overridden by 'photo_width' or 'photo_size' in individual markers)
+			gv_options.hide_labels = false;  // true|false: hide labels when map first loads?
+			gv_options.labels_behind_markers = false; // true|false: are the labels behind other markers (true) or in front of them (false)?
+			gv_options.label_offset = [0,0];  // [x,y]: shift all markers' labels (positive numbers are right and down)
+			gv_options.label_centered = false;  // true|false: center labels with respect to their markers?  (label_left is also a valid option.)
+			gv_options.driving_directions = false;  // put a small "driving directions" form in each marker's pop-up window? (override with dd:true or dd:false in a marker's options)
+			gv_options.garmin_icon_set = 'gpsmap'; // 'gpsmap' are the small 16x16 icons; change it to '24x24' for larger icons
+			gv_options.marker_list_options = {};  // options for a dynamically-created list of markers
+			  gv_options.marker_list_options.enabled = false;  // true|false: enable or disable the marker list altogether
+			  gv_options.marker_list_options.floating = true;  // is the list a floating box inside the map itself?
+			  gv_options.marker_list_options.position = ['RIGHT_BOTTOM',6,38];  // floating list only: position within map
+			  gv_options.marker_list_options.min_width = 160; // minimum width, in pixels, of the floating list
+			  gv_options.marker_list_options.max_width = 160;  // maximum width
+			  gv_options.marker_list_options.min_height = 0;  // minimum height, in pixels, of the floating list
+			  gv_options.marker_list_options.max_height = 310;  // maximum height
+			  gv_options.marker_list_options.draggable = true;  // true|false, floating list only: can it be moved around the screen?
+			  gv_options.marker_list_options.collapsible = true;  // true|false, floating list only: can it be collapsed by double-clicking its top bar?
+			  gv_options.marker_list_options.include_tickmarks = false;  // true|false: are distance/time tickmarks included in the list?
+			  gv_options.marker_list_options.include_trackpoints = false;  // true|false: are "trackpoint" markers included in the list?
+			  gv_options.marker_list_options.dividers = false;  // true|false: will a thin line be drawn between each item in the list?
+			  gv_options.marker_list_options.desc = false;  // true|false: will the markers' descriptions be shown below their names in the list?
+			  gv_options.marker_list_options.icons = true;  // true|false: should the markers' icons appear to the left of their names in the list?
+			  gv_options.marker_list_options.thumbnails = false;  // true|false: should markers' thumbnails be shown in the list?
+			  gv_options.marker_list_options.folders_collapsed = false;  // true|false: do folders in the list start out in a collapsed state?
+			  gv_options.marker_list_options.folders_hidden = false;  // true|false: do folders in the list start out in a hidden state?
+			  gv_options.marker_list_options.collapsed_folders = []; // an array of folder names
+			  gv_options.marker_list_options.hidden_folders = []; // an array of folder names
+			  gv_options.marker_list_options.count_folder_items = false;  // true|false: list the number of items in each folder?
+			  gv_options.marker_list_options.wrap_names = true;  // true|false: should marker's names be allowed to wrap onto more than one line?
+			  gv_options.marker_list_options.unnamed = '[unnamed]';  // what 'name' should be assigned to  unnamed markers in the list?
+			  gv_options.marker_list_options.colors = false;  // true|false: should the names/descs of the points in the list be colorized the same as their markers?
+			  gv_options.marker_list_options.default_color = '';  // default HTML color code for the names/descs in the list
+			  gv_options.marker_list_options.limit = 0;  // how many markers to show in the list; 0 for no limit
+			  gv_options.marker_list_options.center = false;  // true|false: does the map center upon a marker when you click its name in the list?
+			  gv_options.marker_list_options.zoom = false;  // true|false: does the map zoom to a certain level when you click on a marker's name in the list?
+			  gv_options.marker_list_options.zoom_level = 18;  // if 'zoom' is true, what level should the map zoom to?
+			  gv_options.marker_list_options.info_window = true;  // true|false: do info windows pop up when the markers' names are clicked in the list?
+			  gv_options.marker_list_options.url_links = false;  // true|false: do the names in the list become instant links to the markers' URLs?
+			  gv_options.marker_list_options.toggle = false;  // true|false: does a marker disappear if you click on its name in the list?
+			  gv_options.marker_list_options.help_tooltips = false;  // true|false: do "tooltips" appear on marker names that tell you what happens when you click?
+			  gv_options.marker_list_options.id = 'gv_marker_list';  // id of a DIV tag that holds the list
+			  gv_options.marker_list_options.header = ''; // HTML code; be sure to put backslashes in front of any single quotes, and don't include any line breaks
+			  gv_options.marker_list_options.footer = ''; // HTML code
+			gv_options.marker_filter_options = {};  // options for removing waypoints that are out of the current view
+			  gv_options.marker_filter_options.enabled = false;  // true|false: should out-of-range markers be removed?
+			  gv_options.marker_filter_options.movement_threshold = 8;  // in pixels, how far the map has to move to trigger filtering
+			  gv_options.marker_filter_options.limit = 0;  // maximum number of markers to display on the map; 0 for no limit
+			  gv_options.marker_filter_options.update_list = true;  // true|false: should the marker list be updated with only the filtered markers?
+			  gv_options.marker_filter_options.sort_list_by_distance = false;  // true|false: should the marker list be sorted by distance from the center of the map?
+			  gv_options.marker_filter_options.min_zoom = 0;  // below this zoom level, don't show any markers at all
+			  gv_options.marker_filter_options.zoom_message = '';  // message to put in the marker list if the map is below the min_zoom threshold
+			gv_options.synthesize_fields = {}; // for example: {label:'{name}'} would cause all markers' names to become visible labels
+				
+			
+			// Load GPS Visualizer's Google Maps functions (this must be loaded AFTER gv_options are set):
+			if (window.location.toString().indexOf('https://') == 0) { // secure pages require secure scripts
+				document.writeln('<script src="https://gpsvisualizer.com/google_maps/functions3.js" type="text/javascript"><'+'/script>');
+			} else {
+				document.writeln('<script src="http://maps.gpsvisualizer.com/google_maps/functions3.js" type="text/javascript"><'+'/script>');
+			}
+			
+		</script>
+		
+		<style type="text/css">
+			/* Put any custom style definitions here (e.g., .gv_marker_info_window, .gv_marker_info_window_name, .gv_marker_list_item, .gv_tooltip, .gv_label, etc.) */
+			#gmap_div .gv_marker_info_window {
+				font-size:11px !important;
+			}
+			#gmap_div .gv_label {
+				opacity:0.80; filter:alpha(opacity=80);
+				color:white; background-color:#333333; border:1px solid black; padding:1px;
+				font:9px Verdana !important;
+				font-weight:normal !important;
+			}
+			
+		</style>
+		
+		<!-- end GPSV setup script and styles; begin map-drawing script (they must be separate) -->
+		<script type="text/javascript">
+			function GV_Map() {
+			  
+				GV_Setup_Map();
+				
+				
+				
+				GV_Draw_Marker({lat:1.2976609,lon:103.7905055,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976443,lon:103.7904981,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976325,lon:103.7904935,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976188,lon:103.7904875,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976050,lon:103.7904816,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975902,lon:103.7904754,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975762,lon:103.7904699,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975575,lon:103.7904623,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975441,lon:103.7904570,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975311,lon:103.7904519,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975175,lon:103.7904465,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975050,lon:103.7904416,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974921,lon:103.7904367,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974785,lon:103.7904314,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974663,lon:103.7904264,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974547,lon:103.7904215,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974427,lon:103.7904163,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974310,lon:103.7904109,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974198,lon:103.7904050,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974058,lon:103.7903969,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973890,lon:103.7903856,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973796,lon:103.7903782,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973703,lon:103.7903702,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973615,lon:103.7903618,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973537,lon:103.7903532,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973436,lon:103.7903405,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973363,lon:103.7903300,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973305,lon:103.7903204,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973252,lon:103.7903099,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973206,lon:103.7902990,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973185,lon:103.7902937,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973145,lon:103.7902822,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973124,lon:103.7902760,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973086,lon:103.7902590,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973075,lon:103.7902508,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973060,lon:103.7902368,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973057,lon:103.7902216,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973063,lon:103.7902061,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973068,lon:103.7901987,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973089,lon:103.7901817,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973103,lon:103.7901736,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973140,lon:103.7901576,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973172,lon:103.7901451,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973211,lon:103.7901329,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973253,lon:103.7901203,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973300,lon:103.7901078,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973367,lon:103.7900910,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973418,lon:103.7900786,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973471,lon:103.7900660,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973508,lon:103.7900571,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973584,lon:103.7900390,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973639,lon:103.7900257,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973696,lon:103.7900124,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973753,lon:103.7899992,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973812,lon:103.7899861,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973870,lon:103.7899728,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973932,lon:103.7899590,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2973995,lon:103.7899445,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974054,lon:103.7899307,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974117,lon:103.7899164,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974178,lon:103.7899028,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974237,lon:103.7898891,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974297,lon:103.7898755,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974374,lon:103.7898577,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974431,lon:103.7898442,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974491,lon:103.7898302,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974544,lon:103.7898173,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974598,lon:103.7898041,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974679,lon:103.7897849,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974735,lon:103.7897714,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974793,lon:103.7897574,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974854,lon:103.7897429,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974912,lon:103.7897294,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2974969,lon:103.7897163,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975028,lon:103.7897027,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975087,lon:103.7896889,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975145,lon:103.7896751,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975224,lon:103.7896564,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975264,lon:103.7896470,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975353,lon:103.7896263,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975400,lon:103.7896153,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975462,lon:103.7896006,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975517,lon:103.7895870,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975572,lon:103.7895740,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975629,lon:103.7895600,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975686,lon:103.7895463,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975744,lon:103.7895323,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975802,lon:103.7895188,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975863,lon:103.7895053,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2975947,lon:103.7894868,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976007,lon:103.7894731,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976068,lon:103.7894594,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976126,lon:103.7894457,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976184,lon:103.7894326,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976241,lon:103.7894194,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976298,lon:103.7894056,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976354,lon:103.7893923,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976407,lon:103.7893794,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976484,lon:103.7893614,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976537,lon:103.7893480,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976592,lon:103.7893348,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976646,lon:103.7893217,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976706,lon:103.7893084,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976762,lon:103.7892949,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976821,lon:103.7892817,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976897,lon:103.7892638,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2976954,lon:103.7892503,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977010,lon:103.7892370,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977069,lon:103.7892237,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977128,lon:103.7892097,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977185,lon:103.7891964,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977244,lon:103.7891826,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977301,lon:103.7891695,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977362,lon:103.7891558,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977422,lon:103.7891419,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977480,lon:103.7891283,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977534,lon:103.7891154,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977593,lon:103.7891016,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977649,lon:103.7890884,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977709,lon:103.7890749,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977773,lon:103.7890599,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977841,lon:103.7890443,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977906,lon:103.7890296,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2977959,lon:103.7890172,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978017,lon:103.7890043,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978074,lon:103.7889913,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978131,lon:103.7889783,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978187,lon:103.7889656,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978261,lon:103.7889495,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978314,lon:103.7889376,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978368,lon:103.7889262,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978438,lon:103.7889102,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978473,lon:103.7889025,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978527,lon:103.7888908,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978597,lon:103.7888756,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978651,lon:103.7888637,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978709,lon:103.7888515,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978768,lon:103.7888389,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978821,lon:103.7888272,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978877,lon:103.7888160,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2978934,lon:103.7888045,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979007,lon:103.7887894,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979046,lon:103.7887817,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979105,lon:103.7887701,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979164,lon:103.7887588,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979224,lon:103.7887474,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979303,lon:103.7887325,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979362,lon:103.7887217,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979418,lon:103.7887112,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979470,lon:103.7887006,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979526,lon:103.7886902,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979582,lon:103.7886792,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979634,lon:103.7886693,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979683,lon:103.7886595,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979735,lon:103.7886494,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979802,lon:103.7886362,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979852,lon:103.7886268,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979903,lon:103.7886170,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2979952,lon:103.7886075,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980010,lon:103.7885960,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980058,lon:103.7885867,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980105,lon:103.7885773,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980155,lon:103.7885672,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980198,lon:103.7885582,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980247,lon:103.7885478,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980277,lon:103.7885415,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980324,lon:103.7885317,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980376,lon:103.7885204,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980402,lon:103.7885147,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980446,lon:103.7885049,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980498,lon:103.7884945,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980540,lon:103.7884853,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980578,lon:103.7884765,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980619,lon:103.7884671,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980637,lon:103.7884628,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980684,lon:103.7884515,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980706,lon:103.7884465,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980750,lon:103.7884360,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980786,lon:103.7884275,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980806,lon:103.7884231,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980840,lon:103.7884152,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980878,lon:103.7884063,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980919,lon:103.7883970,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980935,lon:103.7883934,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2980975,lon:103.7883841,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981014,lon:103.7883755,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981038,lon:103.7883698,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981057,lon:103.7883656,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981095,lon:103.7883573,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981127,lon:103.7883491,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981144,lon:103.7883449,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981160,lon:103.7883408,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981194,lon:103.7883325,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981226,lon:103.7883248,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981247,lon:103.7883200,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981261,lon:103.7883167,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981279,lon:103.7883124,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981300,lon:103.7883075,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981315,lon:103.7883041,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981329,lon:103.7883006,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981345,lon:103.7882968,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981360,lon:103.7882934,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981378,lon:103.7882893,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981397,lon:103.7882848,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981411,lon:103.7882817,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981429,lon:103.7882772,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981446,lon:103.7882734,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981460,lon:103.7882702,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981475,lon:103.7882664,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981489,lon:103.7882632,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981506,lon:103.7882595,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981522,lon:103.7882560,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981540,lon:103.7882524,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981564,lon:103.7882477,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981583,lon:103.7882442,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981604,lon:103.7882407,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981636,lon:103.7882353,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981658,lon:103.7882319,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981682,lon:103.7882285,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981729,lon:103.7882221,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981755,lon:103.7882187,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981810,lon:103.7882121,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981876,lon:103.7882051,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981900,lon:103.7882028,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2981968,lon:103.7881967,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982049,lon:103.7881901,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982089,lon:103.7881871,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982184,lon:103.7881804,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982269,lon:103.7881751,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982369,lon:103.7881694,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982467,lon:103.7881643,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982563,lon:103.7881604,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982611,lon:103.7881586,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982717,lon:103.7881550,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982826,lon:103.7881519,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2982930,lon:103.7881493,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983043,lon:103.7881474,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983118,lon:103.7881465,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983252,lon:103.7881457,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983369,lon:103.7881456,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983478,lon:103.7881462,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983586,lon:103.7881475,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983713,lon:103.7881498,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983832,lon:103.7881528,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2983942,lon:103.7881559,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984045,lon:103.7881597,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984150,lon:103.7881642,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984257,lon:103.7881690,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984362,lon:103.7881742,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984469,lon:103.7881799,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984618,lon:103.7881881,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984726,lon:103.7881942,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984835,lon:103.7882004,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2984947,lon:103.7882070,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2985062,lon:103.7882136,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2985171,lon:103.7882199,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2985296,lon:103.7882268,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2985407,lon:103.7882330,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2985532,lon:103.7882397,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2985655,lon:103.7882460,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2985775,lon:103.7882520,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2985892,lon:103.7882578,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2986011,lon:103.7882636,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2986131,lon:103.7882692,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2986294,lon:103.7882765,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2986426,lon:103.7882828,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2986551,lon:103.7882885,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2986687,lon:103.7882945,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2986804,lon:103.7882995,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2986980,lon:103.7883071,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2987114,lon:103.7883123,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2987247,lon:103.7883180,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2987378,lon:103.7883236,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2987518,lon:103.7883294,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2987654,lon:103.7883352,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2987784,lon:103.7883407,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2987966,lon:103.7883484,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2988106,lon:103.7883545,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2988198,lon:103.7883585,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2988384,lon:103.7883667,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2988516,lon:103.7883728,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2988657,lon:103.7883792,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2988800,lon:103.7883853,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2988935,lon:103.7883912,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2989108,lon:103.7883986,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2989248,lon:103.7884048,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2989386,lon:103.7884108,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2989521,lon:103.7884168,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2989652,lon:103.7884226,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2989792,lon:103.7884287,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2989932,lon:103.7884349,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2990071,lon:103.7884411,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2990212,lon:103.7884471,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2990394,lon:103.7884549,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2990501,lon:103.7884595,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2990610,lon:103.7884648,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2990801,lon:103.7884732,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2990946,lon:103.7884795,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2991085,lon:103.7884849,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2991227,lon:103.7884911,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2991367,lon:103.7884970,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2991561,lon:103.7885044,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2991709,lon:103.7885106,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2991871,lon:103.7885166,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2992013,lon:103.7885222,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2992160,lon:103.7885280,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2992304,lon:103.7885341,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2992446,lon:103.7885401,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2992584,lon:103.7885456,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2992726,lon:103.7885519,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2992912,lon:103.7885600,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2993046,lon:103.7885657,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2993187,lon:103.7885718,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2993326,lon:103.7885776,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2993476,lon:103.7885840,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2993618,lon:103.7885903,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2993759,lon:103.7885962,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2993895,lon:103.7886024,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2994090,lon:103.7886111,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2994226,lon:103.7886169,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2994368,lon:103.7886232,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2994510,lon:103.7886298,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2994651,lon:103.7886361,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2994791,lon:103.7886422,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2994928,lon:103.7886483,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2995070,lon:103.7886549,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2995259,lon:103.7886638,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2995399,lon:103.7886702,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2995528,lon:103.7886765,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2995662,lon:103.7886830,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2995789,lon:103.7886891,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2995931,lon:103.7886957,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2996107,lon:103.7887036,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2996199,lon:103.7887080,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2996333,lon:103.7887142,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2996466,lon:103.7887205,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2996604,lon:103.7887272,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2996736,lon:103.7887339,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2996914,lon:103.7887425,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2997047,lon:103.7887489,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2997185,lon:103.7887553,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2997317,lon:103.7887611,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2997439,lon:103.7887671,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2997561,lon:103.7887736,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2997691,lon:103.7887798,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2997813,lon:103.7887863,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2997975,lon:103.7887947,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998100,lon:103.7888011,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998216,lon:103.7888070,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998320,lon:103.7888133,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998432,lon:103.7888190,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998539,lon:103.7888247,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998647,lon:103.7888302,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998752,lon:103.7888357,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998856,lon:103.7888415,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2998999,lon:103.7888486,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999062,lon:103.7888520,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999218,lon:103.7888597,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999324,lon:103.7888653,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999421,lon:103.7888702,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999521,lon:103.7888752,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999617,lon:103.7888801,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999745,lon:103.7888867,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999842,lon:103.7888918,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.2999893,lon:103.7888944,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000017,lon:103.7889009,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000128,lon:103.7889065,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000186,lon:103.7889096,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000304,lon:103.7889157,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000391,lon:103.7889200,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000481,lon:103.7889253,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000524,lon:103.7889277,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000621,lon:103.7889329,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000711,lon:103.7889381,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000757,lon:103.7889406,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000847,lon:103.7889454,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3000925,lon:103.7889497,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001012,lon:103.7889544,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001049,lon:103.7889564,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001135,lon:103.7889612,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001227,lon:103.7889662,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001268,lon:103.7889685,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001363,lon:103.7889737,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001450,lon:103.7889782,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001494,lon:103.7889806,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001579,lon:103.7889853,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001642,lon:103.7889888,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001677,lon:103.7889906,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001752,lon:103.7889949,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001792,lon:103.7889971,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001854,lon:103.7890007,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001936,lon:103.7890048,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3001981,lon:103.7890071,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002048,lon:103.7890108,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002082,lon:103.7890125,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002160,lon:103.7890170,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002197,lon:103.7890191,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002231,lon:103.7890210,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002272,lon:103.7890234,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002306,lon:103.7890255,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002350,lon:103.7890280,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002387,lon:103.7890300,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002423,lon:103.7890322,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002457,lon:103.7890343,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002507,lon:103.7890372,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002538,lon:103.7890390,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002612,lon:103.7890436,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002658,lon:103.7890462,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002689,lon:103.7890480,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002727,lon:103.7890501,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002801,lon:103.7890546,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002840,lon:103.7890567,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002933,lon:103.7890623,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3002975,lon:103.7890649,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003061,lon:103.7890704,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003145,lon:103.7890758,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003243,lon:103.7890821,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003334,lon:103.7890879,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003382,lon:103.7890912,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003474,lon:103.7890975,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003571,lon:103.7891040,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003657,lon:103.7891098,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003750,lon:103.7891154,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003867,lon:103.7891233,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3003963,lon:103.7891296,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004033,lon:103.7891345,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004122,lon:103.7891407,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004251,lon:103.7891496,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004349,lon:103.7891564,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004449,lon:103.7891633,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004553,lon:103.7891704,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004692,lon:103.7891797,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004764,lon:103.7891844,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3004912,lon:103.7891940,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005024,lon:103.7892011,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005139,lon:103.7892082,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005251,lon:103.7892150,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005373,lon:103.7892223,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005494,lon:103.7892292,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005664,lon:103.7892383,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005789,lon:103.7892453,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005916,lon:103.7892517,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3005999,lon:103.7892560,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3006177,lon:103.7892646,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3006311,lon:103.7892706,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3006448,lon:103.7892770,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3006602,lon:103.7892843,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3006735,lon:103.7892903,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3006863,lon:103.7892961,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3006992,lon:103.7893019,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3007123,lon:103.7893079,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3007251,lon:103.7893137,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3007390,lon:103.7893198,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3007522,lon:103.7893258,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3007650,lon:103.7893314,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3007831,lon:103.7893389,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3007964,lon:103.7893444,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3008085,lon:103.7893496,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3008207,lon:103.7893546,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3008323,lon:103.7893593,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3008440,lon:103.7893640,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3008551,lon:103.7893682,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3008662,lon:103.7893723,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3008818,lon:103.7893782,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3008925,lon:103.7893819,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009038,lon:103.7893856,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009147,lon:103.7893895,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009261,lon:103.7893936,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009329,lon:103.7893959,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009444,lon:103.7893996,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009566,lon:103.7894036,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009690,lon:103.7894075,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009742,lon:103.7894092,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009858,lon:103.7894124,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3009980,lon:103.7894158,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010033,lon:103.7894173,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010148,lon:103.7894206,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010207,lon:103.7894223,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010308,lon:103.7894249,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010374,lon:103.7894265,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010474,lon:103.7894293,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010532,lon:103.7894308,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010632,lon:103.7894334,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010726,lon:103.7894357,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010779,lon:103.7894370,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010863,lon:103.7894391,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010896,lon:103.7894398,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3010966,lon:103.7894414,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011008,lon:103.7894422,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011060,lon:103.7894436,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011101,lon:103.7894447,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011152,lon:103.7894458,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011200,lon:103.7894468,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011241,lon:103.7894477,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011290,lon:103.7894488,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011338,lon:103.7894499,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011378,lon:103.7894507,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011421,lon:103.7894517,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011472,lon:103.7894527,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011528,lon:103.7894541,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011619,lon:103.7894562,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011662,lon:103.7894571,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011758,lon:103.7894591,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011803,lon:103.7894601,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011888,lon:103.7894618,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011930,lon:103.7894626,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012018,lon:103.7894645,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012066,lon:103.7894654,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012174,lon:103.7894674,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012219,lon:103.7894681,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012306,lon:103.7894695,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012347,lon:103.7894702,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012440,lon:103.7894720,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012479,lon:103.7894726,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012532,lon:103.7894737,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012614,lon:103.7894752,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012671,lon:103.7894761,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012734,lon:103.7894771,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012791,lon:103.7894779,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012849,lon:103.7894789,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012905,lon:103.7894799,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012962,lon:103.7894808,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013011,lon:103.7894816,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013065,lon:103.7894826,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013111,lon:103.7894834,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013173,lon:103.7894846,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013223,lon:103.7894856,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013264,lon:103.7894863,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013314,lon:103.7894874,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013361,lon:103.7894885,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013408,lon:103.7894897,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013449,lon:103.7894908,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013494,lon:103.7894922,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013545,lon:103.7894938,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013590,lon:103.7894954,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013684,lon:103.7894989,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013767,lon:103.7895025,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013803,lon:103.7895045,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013892,lon:103.7895093,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013935,lon:103.7895119,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014036,lon:103.7895186,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014085,lon:103.7895220,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014163,lon:103.7895281,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014237,lon:103.7895349,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014277,lon:103.7895389,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014354,lon:103.7895472,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014391,lon:103.7895517,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014466,lon:103.7895614,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014517,lon:103.7895697,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014564,lon:103.7895797,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014587,lon:103.7895844,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014621,lon:103.7895926,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014655,lon:103.7896015,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014676,lon:103.7896110,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014707,lon:103.7896221,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014722,lon:103.7896279,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014734,lon:103.7896398,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014739,lon:103.7896459,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014741,lon:103.7896576,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014747,lon:103.7896669,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014748,lon:103.7896734,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014750,lon:103.7896858,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014752,lon:103.7896971,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014754,lon:103.7897029,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014752,lon:103.7897131,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014754,lon:103.7897253,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014754,lon:103.7897374,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014753,lon:103.7897501,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014753,lon:103.7897550,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014751,lon:103.7897674,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014750,lon:103.7897819,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014748,lon:103.7897887,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014745,lon:103.7898043,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014742,lon:103.7898124,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014740,lon:103.7898271,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014736,lon:103.7898426,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014733,lon:103.7898578,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014733,lon:103.7898638,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014735,lon:103.7898809,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014738,lon:103.7898940,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014738,lon:103.7899066,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014737,lon:103.7899207,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014736,lon:103.7899335,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014738,lon:103.7899468,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014741,lon:103.7899633,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014747,lon:103.7899754,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014750,lon:103.7899900,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014754,lon:103.7900051,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014755,lon:103.7900143,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014758,lon:103.7900323,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014760,lon:103.7900461,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014765,lon:103.7900601,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014767,lon:103.7900740,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014770,lon:103.7900885,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014773,lon:103.7901025,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014777,lon:103.7901179,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014783,lon:103.7901377,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014790,lon:103.7901536,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014797,lon:103.7901703,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014804,lon:103.7901812,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014814,lon:103.7902009,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014826,lon:103.7902156,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014831,lon:103.7902305,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014838,lon:103.7902448,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014845,lon:103.7902592,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014857,lon:103.7902732,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014868,lon:103.7902907,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014877,lon:103.7903050,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014886,lon:103.7903188,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014894,lon:103.7903325,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014898,lon:103.7903460,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014904,lon:103.7903596,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014907,lon:103.7903724,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014909,lon:103.7903857,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014914,lon:103.7903990,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014916,lon:103.7904124,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014918,lon:103.7904299,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014917,lon:103.7904428,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014917,lon:103.7904554,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014915,lon:103.7904687,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014913,lon:103.7904817,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014910,lon:103.7904954,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014906,lon:103.7905086,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014902,lon:103.7905265,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014896,lon:103.7905406,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014890,lon:103.7905543,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014882,lon:103.7905679,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014875,lon:103.7905832,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014868,lon:103.7905971,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014862,lon:103.7906067,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014850,lon:103.7906260,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014843,lon:103.7906402,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014834,lon:103.7906532,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014824,lon:103.7906688,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014814,lon:103.7906816,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014801,lon:103.7906949,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014784,lon:103.7907139,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014775,lon:103.7907229,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014759,lon:103.7907407,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014748,lon:103.7907545,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014737,lon:103.7907685,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014725,lon:103.7907822,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014713,lon:103.7907954,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014700,lon:103.7908090,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014686,lon:103.7908234,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014673,lon:103.7908364,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014661,lon:103.7908498,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014644,lon:103.7908683,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014630,lon:103.7908819,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014615,lon:103.7908951,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014598,lon:103.7909084,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014578,lon:103.7909260,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014569,lon:103.7909353,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014556,lon:103.7909487,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014541,lon:103.7909631,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014525,lon:103.7909763,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014509,lon:103.7909903,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014494,lon:103.7910033,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014474,lon:103.7910166,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014458,lon:103.7910303,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014434,lon:103.7910481,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014415,lon:103.7910614,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014392,lon:103.7910750,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014375,lon:103.7910880,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014355,lon:103.7911013,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014338,lon:103.7911138,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014322,lon:103.7911261,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014299,lon:103.7911440,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014279,lon:103.7911572,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014258,lon:103.7911699,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014237,lon:103.7911830,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014215,lon:103.7911960,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014195,lon:103.7912087,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014167,lon:103.7912258,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014152,lon:103.7912343,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014124,lon:103.7912515,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014103,lon:103.7912644,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014081,lon:103.7912772,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014059,lon:103.7912901,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014038,lon:103.7913026,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014018,lon:103.7913148,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013994,lon:103.7913275,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013970,lon:103.7913402,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013937,lon:103.7913578,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013914,lon:103.7913699,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013890,lon:103.7913823,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013864,lon:103.7913949,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013843,lon:103.7914043,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013816,lon:103.7914203,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013794,lon:103.7914336,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013770,lon:103.7914459,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013743,lon:103.7914586,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013708,lon:103.7914761,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013682,lon:103.7914884,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013658,lon:103.7915006,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013634,lon:103.7915131,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013607,lon:103.7915261,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013580,lon:103.7915384,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013552,lon:103.7915510,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013526,lon:103.7915645,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013490,lon:103.7915817,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013470,lon:103.7915902,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013430,lon:103.7916086,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013402,lon:103.7916224,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013378,lon:103.7916356,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013350,lon:103.7916491,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013322,lon:103.7916629,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013293,lon:103.7916764,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013263,lon:103.7916900,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013224,lon:103.7917058,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013194,lon:103.7917192,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013163,lon:103.7917330,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013119,lon:103.7917530,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013091,lon:103.7917670,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013057,lon:103.7917809,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013027,lon:103.7917944,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012989,lon:103.7918086,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012953,lon:103.7918233,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012921,lon:103.7918373,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012883,lon:103.7918514,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012849,lon:103.7918654,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012806,lon:103.7918840,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012776,lon:103.7918978,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012740,lon:103.7919120,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012708,lon:103.7919247,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012673,lon:103.7919387,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012635,lon:103.7919521,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012597,lon:103.7919663,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012558,lon:103.7919806,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012520,lon:103.7919931,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012482,lon:103.7920069,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012444,lon:103.7920207,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012410,lon:103.7920334,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012375,lon:103.7920466,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012335,lon:103.7920600,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012282,lon:103.7920768,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012241,lon:103.7920897,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012201,lon:103.7921020,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012165,lon:103.7921133,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012130,lon:103.7921243,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012095,lon:103.7921353,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012057,lon:103.7921465,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012014,lon:103.7921615,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011984,lon:103.7921717,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011961,lon:103.7921788,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011916,lon:103.7921918,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011881,lon:103.7922033,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011853,lon:103.7922139,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011836,lon:103.7922208,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011803,lon:103.7922326,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011779,lon:103.7922445,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011767,lon:103.7922514,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011746,lon:103.7922645,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011736,lon:103.7922765,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011735,lon:103.7922834,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011733,lon:103.7922950,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011738,lon:103.7923067,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011744,lon:103.7923130,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011769,lon:103.7923270,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011784,lon:103.7923329,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011844,lon:103.7923514,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011889,lon:103.7923615,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011938,lon:103.7923709,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3011996,lon:103.7923807,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012065,lon:103.7923903,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012139,lon:103.7923996,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012219,lon:103.7924092,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012304,lon:103.7924186,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012396,lon:103.7924277,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012486,lon:103.7924364,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012611,lon:103.7924473,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012674,lon:103.7924527,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012763,lon:103.7924605,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012895,lon:103.7924715,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3012994,lon:103.7924799,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013099,lon:103.7924880,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013199,lon:103.7924955,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013297,lon:103.7925031,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013399,lon:103.7925107,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013501,lon:103.7925181,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013604,lon:103.7925259,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013704,lon:103.7925331,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013830,lon:103.7925420,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3013931,lon:103.7925491,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014032,lon:103.7925560,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014137,lon:103.7925631,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014241,lon:103.7925700,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014350,lon:103.7925772,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014455,lon:103.7925841,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014556,lon:103.7925907,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014650,lon:103.7925966,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014732,lon:103.7926016,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014843,lon:103.7926086,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3014924,lon:103.7926136,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015005,lon:103.7926186,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015130,lon:103.7926261,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015255,lon:103.7926337,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015312,lon:103.7926370,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015408,lon:103.7926424,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015459,lon:103.7926452,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015559,lon:103.7926507,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015653,lon:103.7926559,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015706,lon:103.7926588,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015801,lon:103.7926637,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015901,lon:103.7926687,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3015987,lon:103.7926729,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016029,lon:103.7926750,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016110,lon:103.7926789,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016196,lon:103.7926830,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016232,lon:103.7926848,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016332,lon:103.7926895,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016377,lon:103.7926916,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016460,lon:103.7926953,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016498,lon:103.7926971,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016585,lon:103.7927010,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016634,lon:103.7927032,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016683,lon:103.7927055,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016727,lon:103.7927075,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016784,lon:103.7927101,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016828,lon:103.7927121,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016872,lon:103.7927141,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016916,lon:103.7927160,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016957,lon:103.7927178,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3016996,lon:103.7927196,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017038,lon:103.7927218,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017071,lon:103.7927238,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017108,lon:103.7927264,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017138,lon:103.7927286,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017181,lon:103.7927322,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017206,lon:103.7927345,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017233,lon:103.7927371,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017260,lon:103.7927398,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017291,lon:103.7927428,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017326,lon:103.7927463,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017357,lon:103.7927490,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017395,lon:103.7927520,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017440,lon:103.7927555,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017484,lon:103.7927587,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017555,lon:103.7927632,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017594,lon:103.7927655,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017664,lon:103.7927689,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017701,lon:103.7927706,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017751,lon:103.7927725,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017845,lon:103.7927755,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017890,lon:103.7927766,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3017994,lon:103.7927788,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018090,lon:103.7927808,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018153,lon:103.7927819,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018209,lon:103.7927830,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018333,lon:103.7927853,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018386,lon:103.7927862,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018490,lon:103.7927879,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018596,lon:103.7927899,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018644,lon:103.7927907,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018751,lon:103.7927927,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018813,lon:103.7927937,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018911,lon:103.7927955,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3018961,lon:103.7927965,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019050,lon:103.7927979,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019095,lon:103.7927987,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019185,lon:103.7928001,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019229,lon:103.7928008,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019283,lon:103.7928017,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019346,lon:103.7928028,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019419,lon:103.7928041,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019474,lon:103.7928050,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019529,lon:103.7928059,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019590,lon:103.7928068,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019634,lon:103.7928074,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019682,lon:103.7928082,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019725,lon:103.7928089,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019779,lon:103.7928100,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019830,lon:103.7928108,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019879,lon:103.7928114,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019930,lon:103.7928123,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3019976,lon:103.7928129,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020023,lon:103.7928139,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020087,lon:103.7928147,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020136,lon:103.7928156,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020185,lon:103.7928163,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020249,lon:103.7928171,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020300,lon:103.7928182,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020406,lon:103.7928201,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020452,lon:103.7928208,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020548,lon:103.7928224,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020612,lon:103.7928233,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020723,lon:103.7928250,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020778,lon:103.7928264,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020888,lon:103.7928284,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3020991,lon:103.7928302,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021090,lon:103.7928317,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021191,lon:103.7928334,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021259,lon:103.7928344,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021405,lon:103.7928360,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021526,lon:103.7928372,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021633,lon:103.7928383,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021693,lon:103.7928390,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021833,lon:103.7928408,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3021941,lon:103.7928424,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3022106,lon:103.7928443,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3022192,lon:103.7928451,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3022309,lon:103.7928465,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3022439,lon:103.7928476,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3022562,lon:103.7928494,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3022726,lon:103.7928510,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3022864,lon:103.7928524,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3023001,lon:103.7928535,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3023135,lon:103.7928547,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3023285,lon:103.7928557,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3023459,lon:103.7928568,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3023528,lon:103.7928573,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3023693,lon:103.7928584,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3023859,lon:103.7928595,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3024011,lon:103.7928604,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3024098,lon:103.7928610,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3024307,lon:103.7928623,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3024468,lon:103.7928634,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3024533,lon:103.7928636,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3024713,lon:103.7928648,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3024797,lon:103.7928652,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3024984,lon:103.7928662,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3025073,lon:103.7928667,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3025237,lon:103.7928674,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3025373,lon:103.7928676,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3025498,lon:103.7928681,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3025570,lon:103.7928684,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3025705,lon:103.7928689,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3025846,lon:103.7928698,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3025978,lon:103.7928705,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026053,lon:103.7928709,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026173,lon:103.7928717,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026296,lon:103.7928724,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026424,lon:103.7928729,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026539,lon:103.7928735,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026611,lon:103.7928740,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026742,lon:103.7928747,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026817,lon:103.7928751,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3026961,lon:103.7928755,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027039,lon:103.7928760,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027158,lon:103.7928766,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027224,lon:103.7928770,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027354,lon:103.7928777,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027486,lon:103.7928783,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027541,lon:103.7928786,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027656,lon:103.7928790,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027711,lon:103.7928792,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027819,lon:103.7928791,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027877,lon:103.7928790,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3027985,lon:103.7928783,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028040,lon:103.7928778,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028145,lon:103.7928764,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028246,lon:103.7928744,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028293,lon:103.7928730,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028394,lon:103.7928694,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028441,lon:103.7928674,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028534,lon:103.7928628,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028622,lon:103.7928572,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028667,lon:103.7928539,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028750,lon:103.7928472,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028790,lon:103.7928436,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028862,lon:103.7928361,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3028934,lon:103.7928282,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029000,lon:103.7928195,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029029,lon:103.7928155,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029091,lon:103.7928063,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029155,lon:103.7927968,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029193,lon:103.7927916,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029263,lon:103.7927812,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029298,lon:103.7927760,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029361,lon:103.7927666,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029422,lon:103.7927575,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029480,lon:103.7927492,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029514,lon:103.7927444,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029581,lon:103.7927348,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029648,lon:103.7927252,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029678,lon:103.7927206,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029734,lon:103.7927112,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029766,lon:103.7927055,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029800,lon:103.7927000,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029853,lon:103.7926890,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029891,lon:103.7926790,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029904,lon:103.7926739,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029914,lon:103.7926692,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029931,lon:103.7926561,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029938,lon:103.7926498,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029923,lon:103.7926380,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029911,lon:103.7926333,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029884,lon:103.7926257,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029869,lon:103.7926219,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029827,lon:103.7926136,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029804,lon:103.7926103,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029773,lon:103.7926060,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029740,lon:103.7926019,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029682,lon:103.7925947,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029643,lon:103.7925897,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029608,lon:103.7925852,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029575,lon:103.7925807,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029520,lon:103.7925726,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029494,lon:103.7925681,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029458,lon:103.7925603,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029441,lon:103.7925549,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029430,lon:103.7925497,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029422,lon:103.7925395,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029434,lon:103.7925268,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029447,lon:103.7925212,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029470,lon:103.7925158,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029495,lon:103.7925112,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029548,lon:103.7925038,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029577,lon:103.7925005,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029606,lon:103.7924977,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029675,lon:103.7924917,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029709,lon:103.7924893,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029804,lon:103.7924841,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029841,lon:103.7924824,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029911,lon:103.7924795,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3029949,lon:103.7924781,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030032,lon:103.7924755,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030097,lon:103.7924738,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030153,lon:103.7924723,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030205,lon:103.7924709,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030253,lon:103.7924697,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030305,lon:103.7924682,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030359,lon:103.7924671,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030405,lon:103.7924658,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030453,lon:103.7924649,name:'',desc:'',color:'',icon:'',scale:0.25});
+				GV_Draw_Marker({lat:1.3030499,lon:103.7924639,name:'',desc:'',color:'',icon:'',scale:0.25});
+				
+				
+				GV_Finish_Map();
+					
+			  
+			}
+			GV_Map(); // execute the above code
+			// http://www.gpsvisualizer.com/map_input?form=data&special=data
+		</script>
+		
+		
+		
+	</body>
+
+</html>

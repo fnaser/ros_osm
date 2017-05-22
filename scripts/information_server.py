@@ -14,6 +14,8 @@ global apioverpy
 global nodePointList
 global nodeObjectList
 
+#https://github.com/shashwat14/OsmPy
+
 class Map(object):
     
     def __init__(self, map_file):
@@ -194,14 +196,6 @@ class Node(object):
 
     def __str__(self):
         return "ref %s \nlat %f \nlon %f \ndict %s" % (self.ref, self.lat, self.lon, self.dict)
-
-def toXY(self, lat, lon):
-    lat -= 1.3
-    lon -= 103.77
-    lat *= 110574.84
-    lon *= 111291.00
-    
-    return lat, lon
 
 def closest_node(node, nodes):
     #print nodes
