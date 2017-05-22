@@ -22,3 +22,7 @@ roslaunch ros_osm neq.launch
 # change settings to read_w = true
 roslaunch ros_osm ros_osm.launch
 ```
+# Visualize data
+
+http://www.gpsvisualizer.com/map_input?form=data
+Copy&Paste data e.g. from 'test_results.txt'
