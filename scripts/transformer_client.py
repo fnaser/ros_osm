@@ -23,8 +23,10 @@ def transformer_client(map_x, map_y):
 
 if __name__ == "__main__":
 
-    fname_test_res_data = rospy.get_param('~fname_test_res_data', str("/home/fnaser/catvehicle_ws/src/ros_osm/data/test_results.txt"))
-    fname_test_data = rospy.get_param('~fname_test_data', str("/home/fnaser/catvehicle_ws/src/ros_osm/data/pose_data.txt"))
+    rospy.init_node('transformer_client')
+
+    fname_test_res_data = rospy.get_param('~fname_test_res_data', str("/home/fnaser/test_results.txt"))
+    fname_test_data = rospy.get_param('~fname_test_data', str("/home/fnaser/pose_data.txt"))
     test_data = load_data_from_file(fname_test_data)
 
     #http://www.gpsvisualizer.com/

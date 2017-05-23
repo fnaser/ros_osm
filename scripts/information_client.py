@@ -18,6 +18,7 @@ if __name__ == "__main__":
 
     #test_data = np.asarray([710.186677414, 109.308316028])
     #test_data = np.asarray([692.55917328147305056518235, 674.15354638938072184828343])
-    test_data = np.asarray([196.76704727968336783305858, 628.25255767747557911206968])
+    #test_data = np.asarray([196.76704727968336783305858, 628.25255767747557911206968]) # number of lanes = 1
+    test_data = np.asarray([188.23627009756515349181427, 399.56719722532432115258416]) # number of lanes = 2
     information_client(test_data[0], test_data[1])
 

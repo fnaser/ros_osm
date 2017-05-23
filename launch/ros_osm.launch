@@ -5,6 +5,7 @@
 
   <node pkg="ros_osm" type="information_server.py" name="information_server_node" output="screen">
     <param name="fname_osm_map" value="$(find ros_osm)/data/map.osm"/>
+    <param name="gmaps_nearest_roads" value="true"/>
   </node>
 
 </launch>

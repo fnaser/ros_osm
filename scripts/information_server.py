@@ -8,8 +8,9 @@ import numpy as np
 import overpy
 
 from custom_map_2_gps.srv import *
+from gmaps import gmaps_nearest_roads
 
-global gmaps
+global call_gmaps_nearest_roads
 global apioverpy
 global nodePointList
 global nodeObjectList
@@ -212,15 +213,11 @@ def get_information_from_local_db(latitude, longitude):
     print nodeObjectList[road_node]
 
 def get_information_from_db(latitude, longitude):
-    global gmaps
     global apioverpy
+    global call_gmaps_nearest_roads
 
-    nearest_roads_result = gmaps.nearest_roads((latitude, longitude))
-    if len(nearest_roads_result) > 0:
-       print nearest_roads_result[0]
-       latitude = nearest_roads_result[0]['location']['latitude']
-       longitude = nearest_roads_result[0]['location']['longitude']
-    print (latitude, longitude)
+    if call_gmaps_nearest_roads:
+       [latitude, longitude] = gmaps_nearest_roads(latitude, longitude)
 
     delta = 0.0001
     query = """way(%f,%f,%f,%f);out body;""" % (latitude-delta,longitude-delta,latitude+delta,longitude+delta)
@@ -270,15 +267,15 @@ def get_information(req):
         print "Service call failed: %s"%e
 
 def information_server():
-    global gmaps
     global nodePointList
     global nodeObjectList
+    global call_gmaps_nearest_roads
 
     rospy.init_node('information_server')
     s = rospy.Service('get_information_of_gps', GetInformation, get_information)
-    fname_osm_map = rospy.get_param('~fname_osm_map', str("/home/fnaser/Downloads/map.osm"))
+    fname_osm_map = rospy.get_param('~fname_osm_map', str("/home/fnaser/map.osm"))
+    call_gmaps_nearest_roads = rospy.get_param('~gmaps_nearest_roads', bool(True))
 
-    gmaps = googlemaps.Client(key='AIzaSyBfOXk8wbCSvUHBZjnwFupIK42cQi8DXts')
     osmmap = Map(fname_osm_map)
     [nodeObjectList, nodePointList] = osmmap.getNodeByTag()
 
