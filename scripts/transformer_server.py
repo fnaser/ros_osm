@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 
 from custom_map_2_gps.srv import *
 
+from txt_handler import save_data_to_file
+from txt_handler import load_data_from_file
+
 global w
 global x_train
 global y_train
@@ -34,18 +37,6 @@ y_train = np.asarray([1.3011672121136006, 103.79144668579102,
                          1.298275, 103.788218,
                          1.301397, 103.789476,
                          1.300623, 103.793024])
-
-
-def load_data_from_file(fname):
-    print fname
-    array = np.loadtxt(fname, dtype='float', comments='#', delimiter=' ', converters=None, skiprows=0, usecols=None, unpack=False, ndmin=0)
-    print array
-    return array
-
-
-def save_data_to_file(fname, X):
-    print fname
-    np.savetxt(fname, X, fmt='%.25e', delimiter=' ', newline='\n', header='', footer='', comments='#')
 
 
 def normal_equation():
@@ -120,7 +111,7 @@ def transformer_server():
        x_train = np.asarray(construct_x_train_from_pose(tmp_pose_train))
        y_train = load_data_from_file(fname_gps)
        normal_equation()
-       save_data_to_file(fname_w, w)
+       save_data_to_file(fname_w, w, '%.25e', ' ')
     print w
 
     rospy.Service('transfrom_map_to_gps', TransformMapToGps, transform_ne)

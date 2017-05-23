@@ -5,15 +5,8 @@ import rospy
 from custom_map_2_gps.srv import *
 import numpy as np
 
-def load_data_from_file(fname):
-    print fname
-    array = np.loadtxt(fname, dtype='float', comments='#', delimiter=' ', converters=None, skiprows=0, usecols=None, unpack=False, ndmin=0)
-    print array
-    return array
-
-def save_data_to_file(fname, X):
-    print fname
-    np.savetxt(fname, X, fmt='%.25f', delimiter=',', newline='\n', header='', footer='', comments='#')
+from txt_handler import save_data_to_file
+from txt_handler import load_data_from_file
 
 def transformer_client(map_x, map_y):
     rospy.wait_for_service('transfrom_map_to_gps')
@@ -48,5 +41,5 @@ if __name__ == "__main__":
         if test_data_i + 3 < len(test_data):
            test_data_i = test_data_i + 2
 
-    save_data_to_file(fname_test_res_data, test_data_res)
+    save_data_to_file(fname_test_res_data, test_data_res, '%.25f', ',')
 

@@ -3,6 +3,7 @@ import rospy
 import numpy as np
 from sensor_msgs.msg import NavSatFix
 from geometry_msgs.msg import PoseWithCovarianceStamped
+from txt_handler import save_data_to_file
 
 # assumption: Hz(gps) < Hz(pose)
 # assumption: pose and gps are in the same map_frame
@@ -11,10 +12,6 @@ global pose_array
 global gps_array
 global gps_array_viz
 global latest_pose
-
-def save_data_to_file(fname, X, fmt_str, del_str):
-    print fname
-    np.savetxt(fname, X, fmt=fmt_str, delimiter=del_str, newline='\n', header='', footer='', comments='#')
 
 def callbackGPS(data):
     global pose_array
