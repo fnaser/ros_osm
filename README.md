@@ -11,6 +11,8 @@
 2) Calculate transformation
 3) Run queries
 
+![alt text](https://github.com/fnaser/ros_osm/blob/master/tmatrix.PNG)
+
 ```
 roscore
 rosbag play <filename>.bag
